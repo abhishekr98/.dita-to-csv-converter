@@ -31,31 +31,31 @@ def extract_premise_and_requirement(file_path):
         return ""
 
 
-def extract_qa_note(file_path):
+def extract_xd_note(file_path):
     """
-    Extract QA Notes from the provided _testcase.dita file using BeautifulSoup.
+    Extract xd Notes from the provided _testcase.dita file using BeautifulSoup.
     """
     try:
         with open(file_path, "r", encoding="utf-8") as file:
             xml_content = file.read()
 
         soup = BeautifulSoup(xml_content, "xml")
-        qa_notes = []
+        xd_notes = []
         seen_notes = set()
 
         for entry in soup.find_all("entry"):
             for p in entry.find_all("p"):
-                if p.get_text(strip=True).lower() == "qa note":
+                if p.get_text(strip=True).lower() == "xd note":
                     # Collect all sibling notes
                     for sibling in entry.find_all(["li", "p"]):
                         note_text = sibling.get_text(strip=True)
                         if note_text and note_text not in seen_notes:
-                            qa_notes.append(note_text)
+                            xd_notes.append(note_text)
                             seen_notes.add(note_text)
 
-        return "\n".join(qa_notes)
+        return "\n".join(xd_notes)
     except Exception as e:
-        print(f"Error extracting QA Notes from {file_path}: {e}")
+        print(f"Error extracting xd Notes from {file_path}: {e}")
         return ""
 
 
@@ -81,7 +81,7 @@ def extract_section_content(soup, section_name):
 
 def parse_testcase_dita(file_path):
     """
-    Parses a _testcase.dita file for QA Note, Expected Results, Procedures, and Notes.
+    Parses a _testcase.dita file for xd Note, Expected Results, Procedures, and Notes.
     """
     try:
         with open(file_path, "r", encoding="utf-8") as file:
@@ -91,7 +91,7 @@ def parse_testcase_dita(file_path):
         title_tag = soup.find("title")
         title = title_tag.get_text(strip=True) if title_tag else "Unknown Title"
 
-        qa_note = extract_qa_note(file_path)
+        xd_note = extract_xd_note(file_path)
 
         custom_fields = []
         for dlentry in soup.find_all("dlentry"):
@@ -110,7 +110,7 @@ def parse_testcase_dita(file_path):
                     }
                 })
 
-        return title, qa_note, custom_fields
+        return title, xd_note, custom_fields
     except Exception as e:
         print(f"Error parsing {file_path}: {e}")
         return None, None, None
@@ -174,7 +174,7 @@ def process_folder(input_folder, output_csv):
             custom_field_premise = extract_premise_and_requirement(base_file_path)
 
             base_title, base_description, premise, _ = parse_dita(base_file_path)
-            testcase_title, qa_note, custom_fields = parse_testcase_dita(testcase_file_path)
+            testcase_title, xd_note, custom_fields = parse_testcase_dita(testcase_file_path)
 
             if base_title and testcase_title:
                 data.append([
@@ -182,7 +182,7 @@ def process_folder(input_folder, output_csv):
                     base_description,
                     custom_field_premise,
                     json.dumps(custom_fields),
-                    qa_note
+                    xd_note
                 ])
 
         with open(output_csv, "w", newline="", encoding="utf-8") as csvfile:
@@ -192,7 +192,7 @@ def process_folder(input_folder, output_csv):
                 "Description",
                 "Custom field (Premise)",
                 "Custom Field Manual Test Steps",
-                "Custom Field (QA Notes)"
+                "Custom Field (xd Notes)"
             ])
             writer.writerows(data)
 
