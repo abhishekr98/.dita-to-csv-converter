@@ -202,6 +202,6 @@ def process_folder(input_folder, output_csv):
 
 
 # Example usage
-input_folder = "TRC"  # Replace with the folder containing your .dita files
+input_folder = "Folder"  # Replace with the folder containing your .dita files
 output_csv = "structured_output.csv"
 process_folder(input_folder, output_csv)
